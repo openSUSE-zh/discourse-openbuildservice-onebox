@@ -1,0 +1,3 @@
+plugins:
+  open_build_service_instance:
+    default: ['https://build.opensuse.org']
