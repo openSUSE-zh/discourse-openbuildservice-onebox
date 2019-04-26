@@ -1,6 +1,6 @@
 module Onebox
   module Engine
-    class OpenBuildServicePackageOnebox
+    class OpensuseBuildServiceOnebox
       include Engine
       include LayoutSupport
       include HTML
@@ -14,7 +14,7 @@ module Onebox
         {
           image: avatar,
           link: link,
-          title: user? ? raw.css('#home-realname').text : raw.css('div.alpha h3')[0].text,
+          title: title,
           description: user? ? raw.css('#home-username').text : raw.css('#description-text').text,
           request: request,
           packages: package
@@ -26,6 +26,14 @@ module Onebox
           author_avatar
         elsif user?
           raw.css('.home-avatar').attr('src')
+        end
+      end
+
+      def title
+        if user?
+          raw.css('#home-realname').text
+        else
+          link.gsub(/^.*show\//, '')
         end
       end
 
@@ -67,8 +75,28 @@ module Onebox
       def package
         return unless package?
 
-        paths = URI(link).path.split('/')
-        [{ "project": paths[-2], "package": paths[-1] }]
+        browser = Watir::Browser.new(:chrome, {:chromeOptions => {:args => ['--headless', '--window-size=1200x600']}})
+        browser.goto('https://build.opensuse.org/package/show/home:MargueriteSu:branches:devel:languages:ruby:extensions/rubygem-libv8')
+        p browser.div(:id=>"package-buildstatus").children
+        browser.div(:id=>"package-buildstatus").element(:tag_name => 'td', :class => /^status_\w+\sbuildstatus\snowrap$/).wait_until(timeout: 5) do |i|
+          p i.element(:tag_name => 'a').attribute_value('href')
+          i.element(:tag_name => 'a').attribute_value('href').size > 5
+        end
+
+        doc = Nokogiri::HTML(browser.html).css('#package-buildstatus')
+
+        repos = doc.xpath('//td[contains(@class,"no_border_bottom")]/a')
+        archs = doc.xpath('//td[@class="arch"]/div')
+        p archs
+        build = doc.xpath('//td[contains(@class,"buildstatus")]/a')
+
+        packages = []
+
+        repos.each_with_index do |k, idx|
+          packages << {"repo_uri": "https://build.opensuse.org" + k['href'].strip, "repo": k.text, "arch": archs[idx].text.strip, "buildlog": "https://build.opensuse.org" + build[idx]['href'].strip, "buildstatus": build[idx].text}
+        end
+
+        packages
       end
     end
   end

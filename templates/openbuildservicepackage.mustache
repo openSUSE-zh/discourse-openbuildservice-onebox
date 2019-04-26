@@ -1,6 +1,6 @@
 {{#image}}<img src='{{image}}' class='thumbnail'/>{{/image}}
 
-<h3><a href='{{link}}' target='_blank'>{{title}}</a></h3>
+<h4><a href='{{link}}' target='_blank'>{{title}}</a></h4>
 <p>{{description}}</p>
 {{#request}}
 <p>
@@ -8,8 +8,21 @@
 <span style='float:right;'>{{fuzzy_time}}</span>
 </p>
 {{/request}}
+<ul>
 {{#packages}}
-<p>
-<span><a href='https://software.opensuse.org/download.html?project={{project}}&package={{package}}' target='_blank'>Download package</a></span>
-</p>
+<li>
+<ul>
+<li>
+<a href='{{repo_uri}}' target='_blank'>{{repo}}</a>
+</li>
+<li>
+<img src='{{arch_icon}}'/>
+{{arch}}
+</li>
+<li>
+<a href='{{buildlog}}' target='_blank'>{{buildstatus}}</a>
+</li>
+</ul>
+</li>
 {{/packages}}
+</ul>
