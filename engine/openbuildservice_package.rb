@@ -79,22 +79,23 @@ module Onebox
 
         browser = Watir::Browser.new(:chrome, {:chromeOptions => {:args => ['--headless', '--window-size=1200x600']}})
         browser.goto('https://build.opensuse.org/package/show/home:MargueriteSu:branches:devel:languages:ruby:extensions/rubygem-libv8')
-        Watir::Wait.until(:timeout=>60) do
-          status = browser.element(:tag_name => 'td', :class => /^status_\w+\sbuildstatus\snowrap$/)
-          a = status.element(:tag_name => 'a')
-          status.present? && a.present? && a.attribute_value('href').size > 5
-        end
+        browser.image(:id => "result_reload__0").click
 
         doc = Nokogiri::HTML(browser.html).css('#package-buildstatus')
 
-        repos = doc.xpath('//td[contains(@class,"no_border_bottom")]/a')
-        archs = doc.xpath('//td[@class="arch"]/div')
-        build = doc.xpath('//td[contains(@class,"buildstatus")]/a')
-
+        elements = doc.xpath('//div[@id="package-buildstatus"]/table/tbody/tr')
+        p elements
         packages = []
 
-        repos.each_with_index do |k, idx|
-          packages << {"repo_uri": "https://build.opensuse.org" + k['href'].strip, "repo": k.text, "arch": archs[idx].text.strip, "buildlog": "https://build.opensuse.org" + build[idx]['href'].strip, "buildstatus": build[idx].text}
+        elements.each do |element|
+          p element
+          repo = element.xpath('//td[contains(@class, "no_border_bottom")]/a')
+          arch = element.xpath('//td[@class="arch"]/div')
+          build = element.xpath('//td[contains(@class, "buildstatus")]/a')
+          p repo
+          p arch
+          p build
+          packages << {"repo_uri": "https://build.opensuse.org" + repo['href'].strip, "repo": repo.text, "arch": arch.text.strip, "buildlog": "https://build.opensuse.org" + build['href'].strip, "buildstatus": build.text}
         end
 
         packages
