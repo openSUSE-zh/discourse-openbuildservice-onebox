@@ -1,8 +1,6 @@
-require 'watir'
-
 module Onebox
   module Engine
-    class OpensuseBuildServiceOnebox
+    class OpenBuildServiceOnebox
       include Engine
       include LayoutSupport
       include HTML
@@ -77,25 +75,28 @@ module Onebox
       def package
         return unless package?
 
-        browser = Watir::Browser.new(:chrome, {:chromeOptions => {:args => ['--headless', '--window-size=1200x600']}})
-        browser.goto('https://build.opensuse.org/package/show/home:MargueriteSu:branches:devel:languages:ruby:extensions/rubygem-libv8')
+        browser = Watir::Browser.new(:chrome, {:chromeOptions => {:args => ['--headless', '--window-size=1200x600', '--no-sandbox', '--disable-dev-shm-usage']}})
+        browser.goto(link)
         browser.image(:id => "result_reload__0").click
 
         doc = Nokogiri::HTML(browser.html).css('#package-buildstatus')
 
         elements = doc.xpath('//div[@id="package-buildstatus"]/table/tbody/tr')
-        p elements
         packages = []
-
         elements.each do |element|
-          p element
-          repo = element.xpath('//td[contains(@class, "no_border_bottom")]/a')
-          arch = element.xpath('//td[@class="arch"]/div')
-          build = element.xpath('//td[contains(@class, "buildstatus")]/a')
-          p repo
-          p arch
-          p build
-          packages << {"repo_uri": "https://build.opensuse.org" + repo['href'].strip, "repo": repo.text, "arch": arch.text.strip, "buildlog": "https://build.opensuse.org" + build['href'].strip, "buildstatus": build.text}
+          repo = element.css(".no_border_bottom a")
+          arch = element.css(".arch div")
+          build = element.css(".buildstatus a")
+          repo_uri = repo.empty? ? "" : "https://build.opensuse.org" + repo.attr('href').text.strip
+          repo_text = repo.empty? ? "" : repo.text
+          status_class = if build.text == "unresolvable" || build.text == "failed"
+                           "obs-status-red"
+                         elsif build.text == "succeeded"
+                           "obs-status-green"
+                         else
+                           "obs-status-grey"
+                         end
+          packages << {"repo_uri": repo_uri, "repo": repo_text, "arch": arch.text.strip, "buildlog": "https://build.opensuse.org" + build.attr('href').text.strip, "status_class": status_class, "buildstatus": build.text}
         end
 
         packages
