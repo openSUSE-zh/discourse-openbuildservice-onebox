@@ -6,7 +6,7 @@ module Onebox
       include HTML
       always_https
 
-      matches_regexp(%r{^(https?://)?#{Regexp.union(*whitelist.map {|i| Regexp.escape(i) })}/\w+/show/(.)+$})
+      matches_regexp(%r{^(https?://)?#{Regexp.union(*whitelist.map { |i| Regexp.escape(i) })}/\w+/show/(.)+$})
 
       private
 
@@ -22,7 +22,7 @@ module Onebox
       end
 
       def whitelist
-        SiteSetting.open_build_service_instance.split(",").map {|i| URI.parse(i).host }
+        SiteSetting.open_build_service_instance.split(',').map { |i| URI.parse(i).host }
       end
 
       def avatar
@@ -37,7 +37,7 @@ module Onebox
         if user?
           raw.css('#home-realname').text
         else
-          link.gsub(/^.*show\//, '')
+          link.gsub(%r{^.*show/}, '')
         end
       end
 
@@ -56,7 +56,7 @@ module Onebox
       def host
         'https://' + URI.parse(link).host
       end
-      
+
       def author_link
         host + raw.css('.clean_list li a').first['href']
       end
@@ -87,9 +87,9 @@ module Onebox
 
       def package
         reload_id = if request?
-                       "result_reload_0_0"
+                      'result_reload_0_0'
                     elsif package?
-                       "result_reload__0"
+                      'result_reload__0'
                     end
         return unless reload_id
 
@@ -97,28 +97,28 @@ module Onebox
       end
 
       def buildstatus(reload_id)
-        browser = Watir::Browser.new(:chrome, {:chromeOptions => {:args => ['--headless', '--window-size=1200x600', '--no-sandbox', '--disable-dev-shm-usage']}})
+        browser = Watir::Browser.new(:chrome, chromeOptions: { args: ['--headless', '--window-size=1200x600', '--no-sandbox', '--disable-dev-shm-usage'] })
         browser.goto(link)
-        browser.image(:id => reload_id).click
+        browser.image(id: reload_id).click
 
         doc = Nokogiri::HTML(browser.html).css('#package-buildstatus')
 
         elements = doc.xpath('//div[@id="package-buildstatus"]/table/tbody/tr')
         packages = []
         elements.each do |element|
-          repo = element.css(".no_border_bottom a")
-          arch = element.css(".arch div")
-          build = element.css(".buildstatus a")
-          repo_uri = repo.empty? ? "" : host + repo.attr('href').text.strip
-          repo_text = repo.empty? ? "" : repo.text
-          status_class = if build.text == "unresolvable" || build.text == "failed"
-                           "obs-status-red"
-                         elsif build.text == "succeeded"
-                           "obs-status-green"
+          repo = element.css('.no_border_bottom a')
+          arch = element.css('.arch div')
+          build = element.css('.buildstatus a')
+          repo_uri = repo.empty? ? '' : host + repo.attr('href').text.strip
+          repo_text = repo.empty? ? '' : repo.text
+          status_class = if build.text == 'unresolvable' || build.text == 'failed'
+                           'obs-status-red'
+                         elsif build.text == 'succeeded'
+                           'obs-status-green'
                          else
-                           "obs-status-grey"
+                           'obs-status-grey'
                          end
-          packages << {"repo_uri": repo_uri, "repo": repo_text, "arch": arch.text.strip, "buildlog": host + build.attr('href').text.strip, "status_class": status_class, "buildstatus": build.text}
+          packages << { "repo_uri": repo_uri, "repo": repo_text, "arch": arch.text.strip, "buildlog": host + build.attr('href').text.strip, "status_class": status_class, "buildstatus": build.text }
         end
 
         packages
