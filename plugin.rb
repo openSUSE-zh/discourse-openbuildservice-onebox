@@ -5,6 +5,7 @@
 # url: https://github.com/openSUSE-zh/discourse-openbuildservice-onebox
 
 gem 'watir','6.16.5'
+gem 'selenium-webdriver','~> 3.6'
 
 enabled_site_setting :open_build_service_instance
 
