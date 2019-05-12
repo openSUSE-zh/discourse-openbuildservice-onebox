@@ -13,7 +13,9 @@ Open Build Service is a build automation project developed and used by openSUSE 
 
 ##Installation
 
-Please follow this office [plugin installation how-to](https://meta.discourse.org/t/install-a-plugin/19157).
+You need [watir](https://github.com/watir/watir) gem, [chrome-driver](http://chromedriver.chromium.org/) and a chromium.
+
+Then follow this official [plugin installation how-to](https://meta.discourse.org/t/install-a-plugin/19157).
 
 ## License
 

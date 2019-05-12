@@ -1,0 +1,29 @@
+aside.onebox {
+  &.openbuildservice {
+    packages {
+      .obs-buildstatus {
+        display: inline-block;
+        padding: 0.2em;
+        float: left;
+        border-top: 1px dotted #ccc;
+      }
+
+      .obs-buildstatus:nth-child(2) {
+        border-left: 1px dotted #ccc;
+        border-right: 1px dotted #ccc;
+      }
+
+      .obs-status-red {
+        color: #c00;
+      }
+
+      .obs-status-green {
+        color: #690;
+      }
+
+      .obs-status-grey {
+        color: #ccc;
+      }
+    }
+  }
+}

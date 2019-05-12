@@ -1,20 +1,20 @@
 {{#image}}<img src='{{image}}' class='thumbnail'/>{{/image}}
-<style type="text/css">
-.obs-buildstatus { display: inline-block; padding: 0.2em; float: left; border-top: 1px dotted #ccc;}
-.obs-buildstatus:nth-child(2) { border-left: 1px dotted #ccc; border-right: 1px dotted #ccc;}
-.obs-status-red { color: #c00; }
-.obs-status-green { color: #690;}
-.obs-status-grey { color: #ccc; }
-</style>
 <h4><a style="color: #690;" href='{{link}}' target='_blank'>{{title}}</a></h4>
 <p>{{description}}</p>
 {{#request}}
+<p>Submit package <a href='{{source_prj_link}}' style="color: #069;">{{source_prj}}</a> / <a href='{{source_pkg_link}}' style="color: #069;">{{source_pkg}}</a> to package <a href='{{dest_prj_link}}' style="color: #069;">{{dest_prj}}</a> / <a href='{{dest_pkg_link}}' style="color: #069;">{{dest_pkg}}</a></p>
 <p>
-<span>Created by <a href='{{author_link}}' target='_blank'>{{author_name}}</a></span>
-<span style='float:right;'>{{fuzzy_time}}</span>
+<img style="width: 16px; height: 16px; background: url(https://build.opensuse.org/assets/icons_sprite-2409a577c5e87bec19ab326b71b9cf800ff3e9a8528f5e81037f01d2c58b8fc4.png) -42px -440px no-repeat;"/>
+Created by <a href='{{author_link}}' target='_blank' style="color: #069;">{{author_name}}</a>
+<span style='text-decoration: underline dashed #069;'>{{fuzzy_time}}</span>
+</p>
+<p>
+<img style="width: 16px; height: 16px; background: url(https://build.opensuse.org/assets/icons_sprite-2409a577c5e87bec19ab326b71b9cf800ff3e9a8528f5e81037f01d2c58b8fc4.png) -242px -380px no-repeat;"/>
+In state
+<a href='{{link}}#request_history' style='color: green;'>{{request_state}}</a>
 </p>
 {{/request}}
-<ul style="display: block; list-style-type: none; padding: 0; width: 600px;">
+<ul style="display: inline-block; list-style-type: none; padding: 0; width: 600px;">
 {{#packages}}
 <li style="display:block; width: 100%">
 <ul style="list-style-type: none; padding: 0; width: 100%">

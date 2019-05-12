@@ -1,3 +1,5 @@
+require 'watir'
+
 module Onebox
   module Engine
     class OpenBuildServiceOnebox
@@ -58,26 +60,40 @@ module Onebox
         author_html.css('.home-avatar').attr('src')
       end
 
-      def fuzzy_time
-        raw.css('.clean_list li span.fuzzy-time')[0].text
-      end
-
       def request
         return unless request?
 
         [{
           "author_link": author_link,
           "author_name": File.basename(author_link),
-          "fuzzy_time": fuzzy_time
+          "fuzzy_time": raw.css('.clean_list li span.fuzzy-time')[0].text,
+          "request_state": raw.css('.clean_list li a')[1].text,
+          "source_prj_link": "https://build.opensuse.org" + raw.css('a.project')[0].attr('href'),
+          "source_prj": raw.css('a.project')[0].text,
+          "source_pkg_link": "https://build.opensuse.org" + raw.css('a.package')[0].attr('href'),
+          "source_pkg": raw.css('a.package')[0].text,
+          "dest_prj_link": "https://build.opensuse.org" + raw.css('a.project')[1].attr('href'),
+          "dest_prj": raw.css('a.project')[1].text,
+          "dest_pkg_link": "https://build.opensuse.org" + raw.css('a.package')[1].attr('href'),
+          "dest_pkg": raw.css('a.package')[1].text
         }]
       end
 
       def package
-        return unless package?
+        reload_id = if request?
+                       "result_reload_0_0"
+                    elsif package?
+                       "result_reload__0"
+                    end
+        return unless reload_id
 
+        buildstatus(reload_id)
+      end
+
+      def buildstatus(reload_id)
         browser = Watir::Browser.new(:chrome, {:chromeOptions => {:args => ['--headless', '--window-size=1200x600', '--no-sandbox', '--disable-dev-shm-usage']}})
         browser.goto(link)
-        browser.image(:id => "result_reload__0").click
+        browser.image(:id => reload_id).click
 
         doc = Nokogiri::HTML(browser.html).css('#package-buildstatus')
 

@@ -5,7 +5,7 @@
 # url: https://github.com/openSUSE-zh/discourse-openbuildservice-onebox
 
 require 'watir'
-require_relative 'engine/openbuildservice_package_onebox'
+require_relative 'engine/openbuildservice_onebox'
 
 enabled_site_setting :open_build_service_instance
 

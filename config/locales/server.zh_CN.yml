@@ -1,0 +1,3 @@
+en:
+  site_settings:
+    open_build_service_instance: "请指定 OBS 实例的 URLs"
