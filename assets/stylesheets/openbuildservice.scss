@@ -1,6 +1,5 @@
 aside.onebox {
-  &.openbuildservice {
-    packages {
+  .onebox-body {
       .obs-buildstatus {
         display: inline-block;
         padding: 0.2em;
@@ -24,6 +23,5 @@ aside.onebox {
       .obs-status-grey {
         color: #ccc;
       }
-    }
   }
 }
