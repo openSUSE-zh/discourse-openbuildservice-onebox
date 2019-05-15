@@ -8,7 +8,7 @@
 gem 'regexp_parser','1.3.0'
 gem 'ffi','1.10.0'
 gem 'childprocess', '0.6.3'
-gem 'rubyzip', '1.2.2'
+gem 'rubyzip', '1.2.2', require_name: 'zip'
 gem 'selenium-webdriver', '3.141.0'
 gem 'watir', '6.16.5'
 
