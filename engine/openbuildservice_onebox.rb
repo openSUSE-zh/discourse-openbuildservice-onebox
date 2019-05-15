@@ -1,5 +1,3 @@
-require 'watir'
-
 module Onebox
   module Engine
     class OpenBuildServiceOnebox
@@ -8,7 +6,7 @@ module Onebox
       include HTML
       always_https
 
-      matches_regexp(%r{^(https?://)?build\.opensuse\.org/\w+/show/(.)+$})
+      matches_regexp(%r{^(https?://)?#{Regexp.union(*whitelist.map { |i| Regexp.escape(i) })}/\w+/show/(.)+$})
 
       private
 
@@ -23,6 +21,10 @@ module Onebox
         }
       end
 
+      def whitelist
+        SiteSetting.open_build_service_instance.split(',').map { |i| URI.parse(i).host }
+      end
+
       def avatar
         if request?
           author_avatar
@@ -35,7 +37,7 @@ module Onebox
         if user?
           raw.css('#home-realname').text
         else
-          link.gsub(/^.*show\//, '')
+          link.gsub(%r{^.*show/}, '')
         end
       end
 
@@ -51,8 +53,12 @@ module Onebox
         link =~ %r{/package/}
       end
 
+      def host
+        'https://' + URI.parse(link).host
+      end
+
       def author_link
-        'https://build.opensuse.org' + raw.css('.clean_list li a').first['href']
+        host + raw.css('.clean_list li a').first['href']
       end
 
       def author_avatar
@@ -68,22 +74,22 @@ module Onebox
           "author_name": File.basename(author_link),
           "fuzzy_time": raw.css('.clean_list li span.fuzzy-time')[0].text,
           "request_state": raw.css('.clean_list li a')[1].text,
-          "source_prj_link": "https://build.opensuse.org" + raw.css('a.project')[0].attr('href'),
+          "source_prj_link": host + raw.css('a.project')[0].attr('href'),
           "source_prj": raw.css('a.project')[0].text,
-          "source_pkg_link": "https://build.opensuse.org" + raw.css('a.package')[0].attr('href'),
+          "source_pkg_link": host + raw.css('a.package')[0].attr('href'),
           "source_pkg": raw.css('a.package')[0].text,
-          "dest_prj_link": "https://build.opensuse.org" + raw.css('a.project')[1].attr('href'),
+          "dest_prj_link": host + raw.css('a.project')[1].attr('href'),
           "dest_prj": raw.css('a.project')[1].text,
-          "dest_pkg_link": "https://build.opensuse.org" + raw.css('a.package')[1].attr('href'),
+          "dest_pkg_link": host + raw.css('a.package')[1].attr('href'),
           "dest_pkg": raw.css('a.package')[1].text
         }]
       end
 
       def package
         reload_id = if request?
-                       "result_reload_0_0"
+                      'result_reload_0_0'
                     elsif package?
-                       "result_reload__0"
+                      'result_reload__0'
                     end
         return unless reload_id
 
@@ -91,28 +97,28 @@ module Onebox
       end
 
       def buildstatus(reload_id)
-        browser = Watir::Browser.new(:chrome, {:chromeOptions => {:args => ['--headless', '--window-size=1200x600', '--no-sandbox', '--disable-dev-shm-usage']}})
+        browser = Watir::Browser.new(:chrome, chromeOptions: { args: ['--headless', '--window-size=1200x600', '--no-sandbox', '--disable-dev-shm-usage'] })
         browser.goto(link)
-        browser.image(:id => reload_id).click
+        browser.image(id: reload_id).click
 
         doc = Nokogiri::HTML(browser.html).css('#package-buildstatus')
 
         elements = doc.xpath('//div[@id="package-buildstatus"]/table/tbody/tr')
         packages = []
         elements.each do |element|
-          repo = element.css(".no_border_bottom a")
-          arch = element.css(".arch div")
-          build = element.css(".buildstatus a")
-          repo_uri = repo.empty? ? "" : "https://build.opensuse.org" + repo.attr('href').text.strip
-          repo_text = repo.empty? ? "" : repo.text
-          status_class = if build.text == "unresolvable" || build.text == "failed"
-                           "obs-status-red"
-                         elsif build.text == "succeeded"
-                           "obs-status-green"
+          repo = element.css('.no_border_bottom a')
+          arch = element.css('.arch div')
+          build = element.css('.buildstatus a')
+          repo_uri = repo.empty? ? '' : host + repo.attr('href').text.strip
+          repo_text = repo.empty? ? '' : repo.text
+          status_class = if build.text == 'unresolvable' || build.text == 'failed'
+                           'obs-status-red'
+                         elsif build.text == 'succeeded'
+                           'obs-status-green'
                          else
-                           "obs-status-grey"
+                           'obs-status-grey'
                          end
-          packages << {"repo_uri": repo_uri, "repo": repo_text, "arch": arch.text.strip, "buildlog": "https://build.opensuse.org" + build.attr('href').text.strip, "status_class": status_class, "buildstatus": build.text}
+          packages << { "repo_uri": repo_uri, "repo": repo_text, "arch": arch.text.strip, "buildlog": host + build.attr('href').text.strip, "status_class": status_class, "buildstatus": build.text }
         end
 
         packages

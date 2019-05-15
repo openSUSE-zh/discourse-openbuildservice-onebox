@@ -11,7 +11,7 @@ Open Build Service is a build automation project developed and used by openSUSE 
 * User
 * Request
 
-##Installation
+## Installation
 
 You need [watir](https://github.com/watir/watir) gem, [chrome-driver](http://chromedriver.chromium.org/) and a chromium.
 
