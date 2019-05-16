@@ -1,3 +1,5 @@
+require_dependency 'site_setting'
+
 module Onebox
   module Engine
     class OpenBuildServiceOnebox
@@ -6,7 +8,7 @@ module Onebox
       include HTML
       always_https
 
-      matches_regexp(%r{^(https?://)?#{Regexp.union(*whitelist.map { |i| Regexp.escape(i) })}/\w+/show/(.)+$})
+      matches_regexp(%r{^(https?://)?#{Regexp.union(*whitelist)}/\w+/show/(.)+$})
 
       private
 
@@ -22,7 +24,7 @@ module Onebox
       end
 
       def whitelist
-        SiteSetting.open_build_service_instance.split(',').map { |i| URI.parse(i).host }
+        SiteSetting.open_build_service_instance.split(',').map { |i| Regexp.escape(URI.parse(i).host) }
       end
 
       def avatar
