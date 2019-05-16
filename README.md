@@ -17,6 +17,12 @@ You need [watir](https://github.com/watir/watir) gem, [chrome-driver](http://chr
 
 Then follow this official [plugin installation how-to](https://meta.discourse.org/t/install-a-plugin/19157).
 
+## Troubleshooting
+
+If a gem for this plugin can't be installed via `bundle exec rake db:migrate` automatically. You can try this command:
+
+    gem install ffi -v 1.10.0 -i /srv/www/vhosts/discourse/plugins/discourse-openbuildservice-onebox/gems/2.6.3 --no-document --ignore-dependencies --no-user-install
+
 ## License
 
 MIT
