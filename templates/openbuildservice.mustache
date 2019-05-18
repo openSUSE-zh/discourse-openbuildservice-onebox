@@ -1,30 +1,30 @@
 {{#image}}<img src='{{image}}' class='thumbnail'/>{{/image}}
-<h4><a style="color: #690;" href='{{link}}' target='_blank'>{{title}}</a></h4>
+<h4><a href='{{link}}' target='_blank'>{{title}}</a></h4>
 <p>{{description}}</p>
 {{#request}}
-<p>Submit package <a href='{{source_prj_link}}' style="color: #069;">{{source_prj}}</a> / <a href='{{source_pkg_link}}' style="color: #069;">{{source_pkg}}</a> to package <a href='{{dest_prj_link}}' style="color: #069;">{{dest_prj}}</a> / <a href='{{dest_pkg_link}}' style="color: #069;">{{dest_pkg}}</a></p>
+<p>Submit package <a href='{{source_prj_link}}'>{{source_prj}}</a> / <a href='{{source_pkg_link}}'>{{source_pkg}}</a> to package <a href='{{dest_prj_link}}'>{{dest_prj}}</a> / <a href='{{dest_pkg_link}}'>{{dest_pkg}}</a></p>
 <p>
-<img style="width: 16px; height: 16px; background: url(https://build.opensuse.org/assets/icons_sprite-2409a577c5e87bec19ab326b71b9cf800ff3e9a8528f5e81037f01d2c58b8fc4.png) -42px -440px no-repeat;"/>
-Created by <a href='{{author_link}}' target='_blank' style="color: #069;">{{author_name}}</a>
-<span style='text-decoration: underline dashed #069;'>{{fuzzy_time}}</span>
+<img />
+Created by <a href='{{author_link}}' target='_blank'>{{author_name}}</a>
+<span>{{fuzzy_time}}</span>
 </p>
 <p>
-<img style="width: 16px; height: 16px; background: url(https://build.opensuse.org/assets/icons_sprite-2409a577c5e87bec19ab326b71b9cf800ff3e9a8528f5e81037f01d2c58b8fc4.png) -242px -380px no-repeat;"/>
+<img />
 In state
-<a href='{{link}}#request_history' style='color: green;'>{{request_state}}</a>
+<a href='{{link}}#request_history'>{{request_state}}</a>
 </p>
 {{/request}}
-<ul style="display: inline-block; list-style-type: none; padding: 0; width: 600px;">
+<ul>
 {{#packages}}
-<li style="display:block; width: 100%">
-<ul style="list-style-type: none; padding: 0; width: 100%">
-<li class="obs-buildstatus" style="width: 30%">
-<a href='{{repo_uri}}' target='_blank' style="color: #069;">{{repo}}</a>
+<li>
+<ul>
+<li class="obs-buildstatus">
+<a href='{{repo_uri}}' target='_blank'>{{repo}}</a>
 </li>
-<li class="obs-buildstatus" style="width: 10%; height: 16px; padding-left: 1.2em; background: url(https://build.opensuse.org/assets/icons_sprite-2409a577c5e87bec19ab326b71b9cf800ff3e9a8528f5e81037f01d2c58b8fc4.png) -422px -377px no-repeat;">
+<li class="obs-buildstatus">
 {{arch}}
 </li>
-<li class="obs-buildstatus" style="border-right: none; width: 30%;">
+<li class="obs-buildstatus">
 <a class="{{status_class}}" href='{{buildlog}}' target='_blank'>{{buildstatus}}</a>
 </li>
 </ul>

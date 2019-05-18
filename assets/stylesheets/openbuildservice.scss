@@ -1,15 +1,74 @@
 aside.onebox {
   .onebox-body {
+    h4 {
+      a {
+        color: #690;
+      }
+    }
+
+    a {
+      color: #069;
+    }
+
+    p {
+      &:nth-child(3) {
+        img {
+          width: 16px;
+          height: 16px;
+          background: url(https://build.opensuse.org/assets/icons_sprite-2409a577c5e87bec19ab326b71b9cf800ff3e9a8528f5e81037f01d2c58b8fc4.png) -42px -440px no-repeat;
+        }
+
+        span {
+          text-decoration: underline dashed #069;
+        }
+      }
+      &:nth-child(4) {
+        img {
+          width: 16px;
+          height: 16px;
+          background: url(https://build.opensuse.org/assets/icons_sprite-2409a577c5e87bec19ab326b71b9cf800ff3e9a8528f5e81037f01d2c58b8fc4.png) -242px -380px no-repeat;
+        }
+
+        a {
+          color: green;
+        }
+      }
+    }
+
+    ul {
+      display: inline-block;
+      list-style-type: none;
+      padding: 0;
+      width: 100%;
+    }
+
+    li {
+      display: block;
+      width: 100%;
+    }    
+
     .obs-buildstatus {
       display: inline-block;
       padding: 0.2em;
       float: left;
       border-top: 1px dotted #ccc;
-    }
 
-    .obs-buildstatus:nth-child(2) {
-      border-left: 1px dotted #ccc;
-      border-right: 1px dotted #ccc;
+      &:nth-child(1) {
+        width: 30%;
+      }
+
+      &:nth-child(2) {
+        border-left: 1px dotted #ccc;
+        border-right: 1px dotted #ccc;
+        width: 30%;
+        height: 16px;
+        padding-left: 1.2em;
+        background: url(https://build.opensuse.org/assets/icons_sprite-2409a577c5e87bec19ab326b71b9cf800ff3e9a8528f5e81037f01d2c58b8fc4.png) -422px -377px no-repeat;
+      }
+
+      &:nth-child(3) {
+        border-right: none;
+      }
     }
 
     .obs-status-red[href] {
