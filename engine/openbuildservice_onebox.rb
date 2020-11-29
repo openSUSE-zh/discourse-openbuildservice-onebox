@@ -12,7 +12,7 @@ class OpenBuildServiceBuildStatus
     project = doc.at("ul[id='buildresult-box']")['data-project']
 
     query = Hash["index"=>index,"package"=>package,"project"=>project,"show_all"=>false]
-    new_uri = uri
+    new_uri = uri.dup
     new_uri.path = path
     new_uri.query = URI.encode_www_form(query)
 
@@ -40,8 +40,11 @@ class OpenBuildServiceBuildStatus
       arch = repository.css(".repository-state").text().strip!
       state = repository.css(".build-state").text().strip!
       buildlog = repository.css(".build-state a").first["href"]
+      if buildlog.start_with?("javascript")
+        buildlog = ""
+      end
       target_url = buildlog.gsub(/^.*live_build_log/,"/package/binaries").gsub(/\/[^\/]+$/,"")
-      result << {"target": target, "target_url": target_url, "arch": arch, "state": state, "buildlog": buildlog}
+      result << {"target": target, "url": target_url, "arch": arch, "state": state, "buildlog": buildlog}
     end
     result
   end
@@ -58,7 +61,7 @@ module Onebox
       matches_regexp(%r{^#{Regexp.union(*SiteSetting.openbuildservice_onebox_instances.split(','))}/\w+/show/(.)+$})
 
       def host
-        uri = @uri
+        uri = @uri.dup
         uri.path = ""
         uri.to_s + "/"
       end
@@ -77,13 +80,13 @@ module Onebox
       def avatar
         if @url =~ %r{/request/}
           Nokogiri::HTML(open(host + raw.css('.clean_list li a').first['href'])).css('.home-avatar').attr('src')
-        elsif @url =~ %r{/user/}
+        elsif @url =~ %r{/users/}
           raw.css('.home-avatar').attr('src')
         end
       end
 
       def title
-        if @url =~ %r{/user/}
+        if @url =~ %r{/users/}
           raw.css('#home-realname').text
         else
           link.gsub(%r{^.*show/}, '')
@@ -120,7 +123,7 @@ module Onebox
                          else
                            'obs-status-grey'
                          end
-          packages << { "repo_uri": host + result["target_url"], "repo": result["target"], "arch": result["arch"], "buildlog": host + result["buildlog"], "state_class": state, "buildstatus": result["state"] }
+          packages << { "repo_uri": host + result[:url], "repo": result[:target], "arch": result[:arch], "buildlog": host + result[:buildlog], "state_class": state, "buildstatus": result[:state] }
         end
         packages
       end
