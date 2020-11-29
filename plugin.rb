@@ -5,7 +5,7 @@
 # url: https://github.com/openSUSE-zh/discourse-openbuildservice-onebox
 
 
-gem 'nokogiri'
+gem 'nokogiri','1.10.0'
 
 register_asset 'stylesheets/openbuildservice.scss'
 
