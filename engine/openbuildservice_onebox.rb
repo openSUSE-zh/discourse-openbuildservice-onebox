@@ -55,10 +55,7 @@ module Onebox
       include HTML
       always_https
 
-      matches_regexp(%r{^#{Regexp.union(*SiteSetting.openbuildservice_onebox_instances.split(',').map { |i| Regexp.escape(i) }
-)}/\w+/show/(.)+$})
-
-      private
+      matches_regexp(%r{^#{Regexp.union(*SiteSetting.openbuildservice_onebox_instances.split(','))}/\w+/show/(.)+$})
 
       def host
         uri = @uri
