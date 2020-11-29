@@ -1,3 +1,4 @@
 en:
   site_settings:
-    open_build_service_instance: "Please specify URLs of Open Build Service Instances, separated by English comma."
+    openbuildservice_onebox_enabled: "Enable Open Build Service Onebox"
+    openbuildservice_onebox_instances: "Please specify URLs of Open Build Service Instances, separated by English comma."

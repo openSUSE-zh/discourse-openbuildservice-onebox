@@ -1,5 +1,3 @@
-require_dependency 'site_setting'
-
 class OpenBuildServiceBuildStatus
   def initialize(uri)
     resp = Net::HTTP.get_response(uri)
@@ -57,13 +55,10 @@ module Onebox
       include HTML
       always_https
 
-      matches_regexp(%r{^(https?://)?#{Regexp.union(*whitelist)}/\w+/show/(.)+$})
+      matches_regexp(%r{^#{Regexp.union(*SiteSetting.openbuildservice_onebox_instances.split(',').map { |i| Regexp.escape(i) }
+)}/\w+/show/(.)+$})
 
       private
-
-      def whitelist
-        SiteSetting.open_build_service_instance.split(',').map { |i| Regexp.escape(URI.parse(i).host) }
-      end
 
       def host
         uri = @uri

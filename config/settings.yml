@@ -1,3 +1,5 @@
 plugins:
-  open_build_service_instance:
-    default: "https://build.opensuse.org"
+  openbuildservice_onebox_enabled:
+    default: true
+  openbuildservice_onebox_instances:
+    default: "https://build.opensuse.org,pmbs.links2linux.de"

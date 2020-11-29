@@ -1,3 +1,4 @@
 en:
   site_settings:
-    open_build_service_instance: "请指定 OBS 实例的 URLs，以英文逗号分隔"
+    openbuildservice_onebox_enabled: "启用 OBS Onebox"
+    openbuildservice_onebox_instances: "请指定 OBS 实例的 URLs，以英文逗号分隔"
