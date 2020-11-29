@@ -1,5 +1,54 @@
 require_dependency 'site_setting'
 
+class OpenBuildServiceBuildStatus
+  def initialize(uri)
+    resp = Net::HTTP.get_response(uri)
+    cookie = resp['Set-Cookie']
+
+    doc = Nokogiri::HTML(resp.body)
+
+    token = doc.at("meta[name='csrf-token']")['content']
+    path = doc.at("div[id='buildresult-urls']")['data-buildresult-url']
+    index = doc.at("ul[id='buildresult-box']")['data-index']
+    package = doc.at("ul[id='buildresult-box']")['data-package']
+    project = doc.at("ul[id='buildresult-box']")['data-project']
+
+    query = Hash["index"=>index,"package"=>package,"project"=>project,"show_all"=>false]
+    new_uri = uri
+    new_uri.path = path
+    new_uri.query = URI.encode_www_form(query)
+
+    http = Net::HTTP.new(new_uri.host, new_uri.port)
+    http.use_ssl = new_uri.scheme == 'https'
+    request = Net::HTTP::Get.new(new_uri)
+    request['Cookie'] = cookie
+    request['X-Requested-With'] = 'XMLHttpRequest'
+    request['X-CSRF-Token'] = token
+    request['Referer'] = uri.to_s
+    request['User-Agent'] = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36'
+
+    response = http.request(request)
+
+    new_doc = Nokogiri::HTML(response.body)
+
+    buildstatus = new_doc.at("div[id='package-buildstatus']")
+    @repositories = buildstatus.css("div[class*='show']")
+  end
+
+  def buildresult
+    result = Array.new
+    @repositories.each do |repository|
+      target = repository['data-repository']
+      arch = repository.css(".repository-state").text().strip!
+      state = repository.css(".build-state").text().strip!
+      buildlog = repository.css(".build-state a").first["href"]
+      target_url = buildlog.gsub(/^.*live_build_log/,"/package/binaries").gsub(/\/[^\/]+$/,"")
+      result << {"target": target, "target_url": target_url, "arch": arch, "state": state, "buildlog": buildlog}
+    end
+    result
+  end
+end
+
 module Onebox
   module Engine
     class OpenBuildServiceOnebox
@@ -12,117 +61,75 @@ module Onebox
 
       private
 
+      def whitelist
+        SiteSetting.open_build_service_instance.split(',').map { |i| Regexp.escape(URI.parse(i).host) }
+      end
+
+      def host
+        uri = @uri
+        uri.path = ""
+        uri.to_s + "/"
+      end
+
       def data
         {
           image: avatar,
-          link: link,
+          link: @url,
           title: title,
-          description: user? ? raw.css('#home-username').text : raw.css('#description-text').text,
+          description: @url =~ %r{/user/} ? raw.css('#home-username').text : raw.css('#description-text').text,
           request: request,
           packages: package
         }
       end
 
-      def whitelist
-        SiteSetting.open_build_service_instance.split(',').map { |i| Regexp.escape(URI.parse(i).host) }
-      end
-
       def avatar
-        if request?
-          author_avatar
-        elsif user?
+        if @url =~ %r{/request/}
+          Nokogiri::HTML(open(host + raw.css('.clean_list li a').first['href'])).css('.home-avatar').attr('src')
+        elsif @url =~ %r{/user/}
           raw.css('.home-avatar').attr('src')
         end
       end
 
       def title
-        if user?
+        if @url =~ %r{/user/}
           raw.css('#home-realname').text
         else
           link.gsub(%r{^.*show/}, '')
         end
       end
 
-      def user?
-        link =~ %r{/user/}
-      end
-
-      def request?
-        link =~ %r{/request/}
-      end
-
-      def package?
-        link =~ %r{/package/}
-      end
-
-      def host
-        'https://' + URI.parse(link).host
-      end
-
-      def author_link
-        host + raw.css('.clean_list li a').first['href']
-      end
-
-      def author_avatar
-        author_html = Nokogiri::HTML(open(author_link))
-        author_html.css('.home-avatar').attr('src')
-      end
-
       def request
-        return unless request?
-
+        return unless @url =~ %r{/request/}
+        author_link = host + raw.css('.clean_list li a').first['href']
         [{
           "author_link": author_link,
           "author_name": File.basename(author_link),
-          "fuzzy_time": raw.css('.clean_list li span.fuzzy-time')[0].text,
+          "fuzzy_time": raw.css('.clean_list li span.fuzzy-time').first.text,
           "request_state": raw.css('.clean_list li a')[1].text,
-          "source_prj_link": host + raw.css('a.project')[0].attr('href'),
-          "source_prj": raw.css('a.project')[0].text,
-          "source_pkg_link": host + raw.css('a.package')[0].attr('href'),
-          "source_pkg": raw.css('a.package')[0].text,
-          "dest_prj_link": host + raw.css('a.project')[1].attr('href'),
+          "source_prj_link": host + raw.css('a.project').first['href'],
+          "source_prj": raw.css('a.project').first.text,
+          "source_pkg_link": host + raw.css('a.package').first['href'],
+          "source_pkg": raw.css('a.package').first.text,
+          "dest_prj_link": host + raw.css('a.project')[1]['href'],
           "dest_prj": raw.css('a.project')[1].text,
-          "dest_pkg_link": host + raw.css('a.package')[1].attr('href'),
+          "dest_pkg_link": host + raw.css('a.package')[1]['href'],
           "dest_pkg": raw.css('a.package')[1].text
         }]
       end
 
       def package
-        reload_id = if request?
-                      'result_reload_0_0'
-                    elsif package?
-                      'result_reload__0'
-                    end
-        return unless reload_id
-
-        buildstatus(reload_id)
-      end
-
-      def buildstatus(reload_id)
-        browser = Watir::Browser.new(:chrome, chromeOptions: { args: ['--headless', '--window-size=1200x600', '--no-sandbox', '--disable-dev-shm-usage'] })
-        browser.goto(link)
-        browser.image(id: reload_id).click
-
-        doc = Nokogiri::HTML(browser.html).css('#package-buildstatus')
-
-        elements = doc.xpath('//div[@id="package-buildstatus"]/table/tbody/tr')
-        packages = []
-        elements.each do |element|
-          repo = element.css('.no_border_bottom a')
-          arch = element.css('.arch div')
-          build = element.css('.buildstatus a')
-          repo_uri = repo.empty? ? '' : host + repo.attr('href').text.strip
-          repo_text = repo.empty? ? '' : repo.text
-          status_class = if build.text == 'unresolvable' || build.text == 'failed'
+        return unless @url =~ %r{/request|package/}
+        packages = Array.new
+        OpenBuildServiceBuildStatus.new(@uri).buildresult.each do |result|
+          state = if result["state"] == 'unresolvable' || result["state"] == 'failed'
                            'obs-status-red'
-                         elsif build.text == 'succeeded'
+                         elsif result["state"] == 'succeeded'
                            'obs-status-green'
                          else
                            'obs-status-grey'
                          end
-          packages << { "repo_uri": repo_uri, "repo": repo_text, "arch": arch.text.strip, "buildlog": host + build.attr('href').text.strip, "status_class": status_class, "buildstatus": build.text }
+          packages << { "repo_uri": host + result["target_url"], "repo": result["target"], "arch": result["arch"], "buildlog": host + result["buildlog"], "state_class": state, "buildstatus": result["state"] }
         end
-
         packages
       end
     end
