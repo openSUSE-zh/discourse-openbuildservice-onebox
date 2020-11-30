@@ -1,5 +1,5 @@
 {{#image}}<img src='{{image}}' class='thumbnail'/>{{/image}}
-<h4><a href='{{link}}' target='_blank'>{{title}}</a></h4>
+<h3><a href='{{link}}' target='_blank'>{{title}}</a></h3>
 <p>{{description}}</p>
 {{#request}}
 <p>Submit package <a href='{{source_prj_link}}'>{{source_prj}}</a> / <a href='{{source_pkg_link}}'>{{source_pkg}}</a> to package <a href='{{dest_prj_link}}'>{{dest_prj}}</a> / <a href='{{dest_pkg_link}}'>{{dest_pkg}}</a></p>
@@ -18,14 +18,14 @@ In state
 {{#packages}}
 <li>
 <ul>
-<li class="obs-buildstatus">
+<li class="openbuildservice-buildstate">
 <a href='{{repo_uri}}' target='_blank'>{{repo}}</a>
 </li>
-<li class="obs-buildstatus">
+<li class="openbuildservice-buildstate">
 {{arch}}
 </li>
-<li class="obs-buildstatus">
-<a class="{{status_class}}" href='{{buildlog}}' target='_blank'>{{buildstatus}}</a>
+<li class="openbuildservice-buildstate">
+<a class="{{state_class}}" href='{{buildlog}}' target='_blank'>{{buildstatus}}</a>
 </li>
 </ul>
 </li>

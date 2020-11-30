@@ -63,15 +63,16 @@ module Onebox
       def host
         uri = @uri.dup
         uri.path = ""
-        uri.to_s + "/"
+        uri.to_s
       end
 
       def data
         {
+          favicon: host + raw.xpath('//link[@rel="shortcut icon"]').first['href'],
           image: avatar,
           link: @url,
-          title: title,
-          description: @url =~ %r{/user/} ? raw.css('#home-username').text : raw.css('#description-text').text,
+          title: raw.xpath('//title').first.text
+          description: @url =~ %r{/users/} ? raw.css('#home-username').text : raw.css('#description-text').text,
           request: request,
           packages: package
         }
@@ -117,11 +118,11 @@ module Onebox
         packages = Array.new
         OpenBuildServiceBuildStatus.new(@uri).buildresult.each do |result|
           state = if result["state"] == 'unresolvable' || result["state"] == 'failed'
-                           'obs-status-red'
+                           'openbuildservice-buildstate-red'
                          elsif result["state"] == 'succeeded'
-                           'obs-status-green'
+                           'openbuildservice-buildstate-green'
                          else
-                           'obs-status-grey'
+                           'openbuildservice-buildstate-grey'
                          end
           packages << { "repo_uri": host + result[:url], "repo": result[:target], "arch": result[:arch], "buildlog": host + result[:buildlog], "state_class": state, "buildstatus": result[:state] }
         end
