@@ -127,10 +127,10 @@ module Onebox
                   else
                     'openbuildservice-build-state-disabled'
                   end
-          if results.map {|i| i["repo"]}.include?(result[:target])
+          if results.map {|i| i[:repo]}.include?(result[:target])
             results.each do |j|
-              if j["repo"] == result[:target]
-                j["buildresult"] << {"arch": result[:arch], "buildlog": host + result[:buildlog], "state_class": state, "state": result[:state]}
+              if j[:repo] == result[:target]
+                j[:buildresult] << {"arch": result[:arch], "buildlog": host + result[:buildlog], "state_class": state, "state": result[:state]}
               end
             end
           else
