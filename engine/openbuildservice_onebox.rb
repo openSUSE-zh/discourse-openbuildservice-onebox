@@ -33,7 +33,7 @@ class OpenBuildServiceBuildStatus
     @repositories = buildstatus.css("div[class*='show']")
   end
 
-  def buildresult
+  def buildresults
     result = Array.new
     @repositories.each do |repository|
       target = repository['data-repository']
@@ -60,6 +60,8 @@ module Onebox
 
       matches_regexp(%r{^#{Regexp.union(*SiteSetting.openbuildservice_onebox_instances.split(','))}/\w+/show/(.)+$})
 
+      private
+
       def host
         uri = @uri.dup
         uri.path = ""
@@ -74,7 +76,9 @@ module Onebox
           title: raw.xpath('//title').first.text,
           description: @url =~ %r{/users/} ? raw.css('#home-username').text : raw.css('#description-text').text,
           request: request,
-          packages: package
+          package: @url =~ %r{/request|package/},
+          packages: buildresults,
+          buildresults: buildresults.map {|i| i["buildresult"]},
         }
       end
 
@@ -105,10 +109,10 @@ module Onebox
         }]
       end
 
-      def package
+      def buildresults
         return unless @url =~ %r{/request|package/}
-        packages = Array.new
-        OpenBuildServiceBuildStatus.new(@uri).buildresult.each do |result|
+        results = Array.new
+        OpenBuildServiceBuildStatus.new(@uri).buildresults.each do |result|
           state = case result[:state]
                   when 'unresolvable','failed', 'broken'
                     'openbuildservice-build-state-failed'
@@ -123,9 +127,17 @@ module Onebox
                   else
                     'openbuildservice-build-state-disabled'
                   end
-          packages << { "repo_uri": host + result[:url], "repo": result[:target], "arch": result[:arch], "buildlog": host + result[:buildlog], "state_class": state, "buildstatus": result[:state] }
+          if results.map {|i| i["repo"]}.include?(result[:target])
+            results.each do |j|
+              if j["repo"] == result[:target]
+                j["buildresult"] << {"arch": result[:arch], "buildlog": host + result[:buildlog], "state_class": state, "state": result[:state]}
+              end
+            end
+          else
+            results << {"repo": result[:target], "repo_uri": host + result[:url], "buildresult": [{"arch": result[:arch], "buildlog": host + result[:buildlog], "state_class": state, "state": result[:state]}]}
+          end
         end
-        packages
+        results
       end
     end
   end

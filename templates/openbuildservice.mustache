@@ -14,14 +14,18 @@ In state
 <a href='{{link}}#request_history'>{{request_state}}</a>
 </p>
 {{/request}}
+{{#package}}
 <table>
 {{#packages}}
 <tr>
   <th><a href='{{repo_uri}}' target='_blank'>{{repo}}</a></th>
 </tr>
+{{#buildresults}}
 <tr>
   <td>{{arch}}</td>
-  <td><a class="{{state_class}}" href='{{buildlog}}' target='_blank'>{{buildstatus}}</a></td>
+  <td><a class="{{state_class}}" href='{{buildlog}}' target='_blank'>{{state}}</a></td>
 </tr>
+{{/buildresults}}
 {{/packages}}
 </table>
+{{/package}}
