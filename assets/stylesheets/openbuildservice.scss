@@ -1,13 +1,7 @@
 aside.onebox {
   .onebox-body {
-    h3 {
-      a {
-        color: #690;
-      }
-    }
-
     a {
-      color: #069;
+      color: #008000;
     }
 
     p {
@@ -45,7 +39,7 @@ aside.onebox {
     li {
       display: block;
       width: 100%;
-    }    
+    }
 
     .openbuildservice-buildstate {
       display: inline-block;
@@ -65,16 +59,25 @@ aside.onebox {
       }
     }
 
-    .openbuildservice-buildstate-red[href] {
-      color: #c00;
+    .openbuildservice-build-state-failed[href] {
+      color: #dc3545;
     }
 
-    .openbuildservice-buildstate-green[href] {
-      color: #690;
+    .openbuildservice-build-state-succeeded[href] {
+      color: #008000;
     }
 
-    .openbuildservice-buildstate-grey[href] {
-      color: #ccc;
+    .openbuildservice-build-state-disabled[href] {
+      color: #6c757d;
+    }
+    .openbuildservice-build-state-building[href] {
+      backgroud-color: #069;
+    }
+    .openbuildservice-build-state-scheduled[href] {
+      background-color: #007a7c;
+    }
+    .openbuildservice-build-state-blocked[href] {
+      background-color: #6c757d;
     }
   }
 }

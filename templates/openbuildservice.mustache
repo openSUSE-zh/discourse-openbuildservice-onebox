@@ -14,20 +14,14 @@ In state
 <a href='{{link}}#request_history'>{{request_state}}</a>
 </p>
 {{/request}}
-<ul>
+<table>
 {{#packages}}
-<li>
-<ul>
-<li class="openbuildservice-buildstate">
-<a href='{{repo_uri}}' target='_blank'>{{repo}}</a>
-</li>
-<li class="openbuildservice-buildstate">
-{{arch}}
-</li>
-<li class="openbuildservice-buildstate">
-<a class="{{state_class}}" href='{{buildlog}}' target='_blank'>{{buildstatus}}</a>
-</li>
-</ul>
-</li>
+<tr>
+  <th><a href='{{repo_uri}}' target='_blank'>{{repo}}</a></th>
+</tr>
+<tr>
+  <td>{{arch}}</td>
+  <td><a class="{{state_class}}" href='{{buildlog}}' target='_blank'>{{buildstatus}}</a></td>
+</tr>
 {{/packages}}
-</ul>
+</table>

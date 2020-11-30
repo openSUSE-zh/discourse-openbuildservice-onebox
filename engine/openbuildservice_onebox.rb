@@ -109,13 +109,20 @@ module Onebox
         return unless @url =~ %r{/request|package/}
         packages = Array.new
         OpenBuildServiceBuildStatus.new(@uri).buildresult.each do |result|
-          state = if result[:state] == 'unresolvable' || result[:state] == 'failed'
-                           'openbuildservice-buildstate-red'
-                         elsif result[:state] == 'succeeded'
-                           'openbuildservice-buildstate-green'
-                         else
-                           'openbuildservice-buildstate-grey'
-                         end
+          state = case result[:state]
+                  when 'unresolvable','failed', 'broken'
+                    'openbuildservice-build-state-failed'
+                  when 'succeeded'
+                    'openbuildservice-build-state-succeeded'
+                  when 'blocked'
+                    'openbuildservice-build-state-blocked'
+                  when 'scheduled'
+                    'openbuildservice-build-state-scheduled'
+                  when 'building'
+                    'openbuildservice-build-state-building'
+                  else
+                    'openbuildservice-build-state-disabled'
+                  end
           packages << { "repo_uri": host + result[:url], "repo": result[:target], "arch": result[:arch], "buildlog": host + result[:buildlog], "state_class": state, "buildstatus": result[:state] }
         end
         packages
