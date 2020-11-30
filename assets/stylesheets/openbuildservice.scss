@@ -53,14 +53,9 @@ aside.onebox {
       float: left;
       border-top: 1px dotted #ccc;
 
-      &:nth-child(1) {
-        width: 30%;
-      }
-
       &:nth-child(2) {
         border-left: 1px dotted #ccc;
         border-right: 1px dotted #ccc;
-        width: 10%;
         padding-left: 1.2em;
         background: url(https://build.opensuse.org/assets/icons_sprite-2409a577c5e87bec19ab326b71b9cf800ff3e9a8528f5e81037f01d2c58b8fc4.png) -422px -377px no-repeat;
       }

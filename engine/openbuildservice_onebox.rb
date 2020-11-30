@@ -71,7 +71,7 @@ module Onebox
           favicon: host + raw.xpath('//link[@rel="shortcut icon"]').first['href'],
           image: avatar,
           link: @url,
-          title: raw.xpath('//title').first.text
+          title: raw.xpath('//title').first.text,
           description: @url =~ %r{/users/} ? raw.css('#home-username').text : raw.css('#description-text').text,
           request: request,
           packages: package
@@ -83,14 +83,6 @@ module Onebox
           Nokogiri::HTML(open(host + raw.css('.clean_list li a').first['href'])).css('.home-avatar').attr('src')
         elsif @url =~ %r{/users/}
           raw.css('.home-avatar').attr('src')
-        end
-      end
-
-      def title
-        if @url =~ %r{/users/}
-          raw.css('#home-realname').text
-        else
-          link.gsub(%r{^.*show/}, '')
         end
       end
 
@@ -117,9 +109,9 @@ module Onebox
         return unless @url =~ %r{/request|package/}
         packages = Array.new
         OpenBuildServiceBuildStatus.new(@uri).buildresult.each do |result|
-          state = if result["state"] == 'unresolvable' || result["state"] == 'failed'
+          state = if result[:state] == 'unresolvable' || result[:state] == 'failed'
                            'openbuildservice-buildstate-red'
-                         elsif result["state"] == 'succeeded'
+                         elsif result[:state] == 'succeeded'
                            'openbuildservice-buildstate-green'
                          else
                            'openbuildservice-buildstate-grey'
